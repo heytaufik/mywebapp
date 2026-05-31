@@ -1,0 +1,899 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Angel One</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+:root{
+  --bg:#f0f2f5;
+  --white:#fff;
+  --red:#d0021b;
+  --blue:#1a56c4;
+  --green:#007a45;
+  --green-light:#e8f5ee;
+  --red-light:#fdecea;
+  --text:#1a1a1a;
+  --text2:#555;
+  --text3:#999;
+  --border:#e2e4e8;
+  --shadow:0 1px 4px rgba(0,0,0,0.08);
+}
+html,body{height:100%;overflow:hidden}
+body{font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif;background:var(--bg);max-width:430px;margin:0 auto;display:flex;flex-direction:column;height:100%;position:relative}
+
+
+
+/* ===== TOP NAV (Orders | Positions) ===== */
+.topnav{background:var(--white);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 4px 0 4px;flex-shrink:0}
+.topnav-tabs{display:flex}
+.tnav-tab{padding:13px 14px 11px;font-size:16px;font-weight:600;color:#999;cursor:pointer;border-bottom:1.6px solid transparent;transition:all .18s}
+.tnav-tab.active{color:#1a1a1a;border-bottom-color:var(--blue)}
+.topnav-actions{display:flex;align-items:center;gap:2px;padding-right:4px}
+.icon-btn{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;background:transparent;border:none}
+.icon-btn:active{background:#f5f5f5}
+
+/* ===== INDEX STRIP ===== */
+.istrip{background:var(--white);display:flex;overflow-x:auto;border-bottom:1px solid var(--border);scrollbar-width:none;flex-shrink:0}
+.istrip::-webkit-scrollbar{display:none}
+.iitem{flex:0 0 auto;padding:9px 14px 8px;cursor:pointer;border-right:1px solid var(--border);min-width:125px;position:relative;transition:background .12s}
+.iitem:last-child{border-right:none}
+.iitem.sel{background:#fef6f6}
+.iitem.sel::after{content:'';position:absolute;bottom:0;left:0;right:0;height:1.2px;background:var(--blue)}
+#ii-NIFTY.sel{background:#fff}
+.iitem-top{display:flex;align-items:center;gap:4px}
+.iitem-name{font-size:10px;font-weight:700;color:#444;letter-spacing:.3px;text-transform:uppercase}
+.iitem-exp{font-size:9px;background:#f0f2f5;color:#666;padding:1px 5px;border-radius:3px;font-weight:600}
+.iitem-val{font-size:13.5px;font-weight:700;color:#1a1a1a;margin-top:3px;font-variant-numeric:tabular-nums}
+.iitem-chg{font-size:10.5px;font-weight:600;margin-top:1px}
+.up{color:var(--green)}.down{color:var(--red)}
+
+/* ===== MAIN SCROLL AREA ===== */
+.main{flex:1;overflow-y:auto;padding:0 0 6px;-webkit-overflow-scrolling:touch}
+.main::-webkit-scrollbar{display:none}
+.section-pad{padding:12px 12px 0}
+
+/* ===== OPEN POSITIONS HEADER ===== */
+.op-header{display:flex;justify-content:space-between;align-items:center;padding:12px 14px 8px}
+.op-title{font-size:13px;font-weight:700;color:#1a1a1a;display:flex;align-items:center;gap:6px}
+.op-title svg{color:#555}
+.op-chevron{width:16px;height:16px;transition:transform .2s}
+  .op-action{font-size:12px;font-weight:700;color:var(--blue);cursor:pointer;letter-spacing:.2px}
+
+/* ===== POSITION CARD (exact Angel One style) ===== */
+.pos-card{background:var(--white);margin:0 10px 8px;border-radius:8px;overflow:hidden;box-shadow:var(--shadow)}
+.pos-card-top{padding:12px 14px 10px;display:flex;justify-content:space-between;align-items:flex-start}
+.pos-name{font-size:13px;font-weight:700;color:#1a1a1a;line-height:1.3}
+.pos-pnl{font-size:15px;font-weight:800;text-align:right}
+.pos-badges{display:flex;gap:5px;align-items:center;margin-top:5px;flex-wrap:wrap}
+.badge{font-size:9.5px;font-weight:700;padding:2px 6px;border-radius:3px;letter-spacing:.2px}
+.b-buy{background:#e3f5ec;color:#1a7a45;border:1px solid #b8e0ca}
+.b-sell{background:#fdecea;color:#c0021b;border:1px solid #f5bcb8}
+.b-cf{background:#ede7f6;color:#5c35b0;border:1px solid #d4c8f0}
+.b-nse{background:#e8f0fe;color:#1a56c4;border:1px solid #b8cef8}
+.b-bse{background:#fff3e0;color:#b85c00;border:1px solid #f5d8a0}
+.pos-ltp{font-size:11px;color:#555;font-weight:600;margin-left:auto}
+.pos-card-bot{padding:8px 14px 10px;display:flex;justify-content:space-between;align-items:center;border-top:1px solid #f0f2f5}
+.pos-lots{font-size:11px;color:#888}
+.pos-avg{font-size:11px;color:#888;text-align:right}
+
+/* ===== SEARCH BAR ===== */
+.search-wrap{padding:8px 10px 6px;background:var(--white);border-bottom:1px solid var(--border)}
+.search-inner{background:#f5f6f8;border-radius:8px;padding:9px 12px;display:flex;align-items:center;gap:8px}
+.search-inner input{border:none;background:transparent;outline:none;font-size:13px;color:#333;flex:1;font-family:inherit}
+.search-inner input::placeholder{color:#aaa}
+.filter-btn{margin-left:auto;cursor:pointer}
+
+/* ===== EMPTY STATE ===== */
+.empty-wrap{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:70px 30px;text-align:center}
+.empty-wrap svg{margin-bottom:18px;opacity:.85}
+.empty-txt{font-size:15px;font-weight:600;color:#666}
+.empty-sub{font-size:12px;color:#aaa;margin-top:5px}
+
+/* ===== TOTAL BAR ===== */
+.total-bar{background:var(--white);border-top:1px solid var(--border);padding:9px 14px;display:flex;justify-content:space-between;align-items:center;cursor:pointer;flex-shrink:0}
+.total-bar.hidden{display:none}
+.total-bar-left{display:flex;align-items:center;gap:5px;font-size:13px;font-weight:700;color:#444}
+.total-bar-amt{font-size:14px;font-weight:800}
+
+/* ===== BOTTOM NAV ===== */
+.botnav{background:var(--white);border-top:1px solid var(--border);display:flex;flex-shrink:0;padding-bottom:env(safe-area-inset-bottom)}
+.bnav-btn{flex:1;display:flex;flex-direction:column;align-items:center;padding:9px 0 7px;cursor:pointer;gap:2px;position:relative}
+.bnav-label{font-size:9.5px;font-weight:600;color:#999;letter-spacing:.3px;text-transform:uppercase}
+.bnav-btn.active .bnav-label{color:var(--blue)}
+
+/* Orders active: use professional blue for icon and label */
+#bnav-orders{color:var(--blue)}
+#bnav-orders svg{stroke:currentColor;fill:none}
+
+/* ===== MODAL ===== */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:200;display:none;flex-direction:column;justify-content:flex-end;align-items:center}
+.overlay.open{display:flex;animation:fadein .2s}
+@keyframes fadein{from{opacity:0}to{opacity:1}}
+.sheet{background:var(--white);border-radius:16px 16px 0 0;width:100%;max-width:430px;max-height:93vh;overflow-y:auto;animation:slideup .28s cubic-bezier(.32,.72,0,1)}
+.sheet::-webkit-scrollbar{display:none}
+@keyframes slideup{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.sheet-handle{width:34px;height:3.5px;background:#ddd;border-radius:2px;margin:10px auto 0}
+.sheet-head{padding:14px 16px 12px;border-bottom:1px solid var(--border);position:relative}
+.sheet-title{font-size:15px;font-weight:800;color:#111}
+.sheet-sub{font-size:11px;color:#888;margin-top:2px}
+.sheet-close{position:absolute;right:14px;top:14px;width:26px;height:26px;border-radius:50%;background:#f0f2f5;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:13px;color:#555}
+.sheet-body{padding:14px 16px 20px}
+
+/* Index live pill in modal */
+.idx-pill{background:#f8f9fb;border:1px solid var(--border);border-radius:8px;padding:9px 12px;display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.idx-pill-l .n{font-size:11px;font-weight:700;color:#555;text-transform:uppercase;letter-spacing:.3px}
+.idx-pill-l .live{display:flex;align-items:center;gap:4px;font-size:9.5px;font-weight:700;color:var(--green);margin-top:2px}
+.ldot{width:5px;height:5px;border-radius:50%;background:var(--green);animation:pulse 1s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.idx-pill-r .v{font-size:14px;font-weight:800;color:#111;text-align:right}
+.idx-pill-r .c{font-size:11px;font-weight:600;text-align:right;margin-top:2px}
+
+.modal-index-strip{display:flex;gap:8px;overflow-x:auto;padding-bottom:10px;margin-bottom:10px}
+.modal-index-strip::-webkit-scrollbar{display:none}
+.modal-index-card{flex:0 0 auto;width:110px;padding:10px 11px;border:1px solid var(--border);border-radius:12px;background:#fff;cursor:pointer;transition:transform .15s,box-shadow .15s}
+.modal-index-card.sel{border-color:var(--red);box-shadow:0 4px 12px rgba(208,2,27,.14);transform:translateY(-1px)}
+.modal-index-card:hover{box-shadow:0 6px 14px rgba(0,0,0,.08)}
+.mic-name{font-size:10px;font-weight:700;color:#444;text-transform:uppercase;letter-spacing:.3px;margin-bottom:4px}
+.mic-val{font-size:13px;font-weight:800;color:#111;line-height:1.2}
+.mic-chg{font-size:11px;font-weight:700;margin-top:4px}
+.idx-note{font-size:11px;color:#666;margin-top:-4px;margin-bottom:14px}
+
+/* Option type */
+.opt-toggle{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}
+.opt-btn{padding:11px;border-radius:8px;border:2px solid var(--border);background:#f8f9fb;font-size:13px;font-weight:800;cursor:pointer;font-family:inherit;color:#888;transition:all .15s;text-align:center}
+.opt-btn.ce{border-color:var(--green);background:var(--green-light);color:#1a7a45}
+.opt-btn.pe{border-color:var(--red);background:var(--red-light);color:var(--red)}
+
+/* Form */
+.flabel{font-size:10px;font-weight:700;color:#666;letter-spacing:.3px;text-transform:uppercase;display:block;margin-bottom:5px}
+.finput{width:100%;padding:11px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:15px;font-weight:600;color:#111;background:#f8f9fb;outline:none;transition:border-color .15s;font-family:inherit;-webkit-appearance:none}
+.finput:focus{border-color:var(--red);background:#fff}
+.fgroup{margin-bottom:13px}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+
+/* Lot adjuster */
+.lot-adj{display:flex;align-items:center;border:1.5px solid var(--border);border-radius:8px;background:#f8f9fb;overflow:hidden}
+.lot-adj:focus-within{border-color:var(--red)}
+.ladj-btn{width:42px;height:42px;border:none;background:transparent;font-size:22px;font-weight:700;color:var(--red);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.ladj-btn:active{background:#fdecea}
+.ladj-inp{flex:1;text-align:center;font-size:16px;font-weight:800;color:#111;border:none;background:transparent;outline:none;font-family:inherit;min-width:0}
+.lot-info{font-size:10px;color:#aaa;text-align:center;margin-top:3px}
+
+/* P&L preview */
+.pnl-box{background:#f8f9fb;border:1px solid var(--border);border-radius:8px;padding:12px 14px;margin:14px 0}
+.pnl-row{display:flex;justify-content:space-between;align-items:center;padding:3px 0}
+.pnl-lbl{font-size:12px;color:#888}
+.pnl-val{font-size:12.5px;font-weight:700;color:#111}
+.pnl-div{height:1px;background:var(--border);margin:7px 0}
+.pnl-big-lbl{font-size:13px;font-weight:700;color:#111}
+.pnl-big-val{font-size:17px;font-weight:900}
+
+/* CTA */
+.cta{width:100%;padding:14px;background:var(--red);color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:800;cursor:pointer;letter-spacing:.3px;font-family:inherit;transition:background .12s}
+.cta:active{background:#b00018}
+
+/* Toast */
+.toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:#111;color:#fff;padding:11px 20px;border-radius:8px;font-size:13px;font-weight:600;z-index:400;display:none;white-space:nowrap;box-shadow:0 4px 20px rgba(0,0,0,.2)}
+.toast.show{display:block;animation:tin .25s}
+@keyframes tin{from{transform:translateX(-50%) translateY(8px);opacity:0}to{transform:translateX(-50%) translateY(0);opacity:1}}
+
+/* Orders tab empty */
+.orders-list-wrap{padding:8px 10px 0}
+</style>
+</head>
+<body>
+
+
+
+<!-- TOP NAV -->
+<div class="topnav">
+  <div class="topnav-tabs">
+    <div class="tnav-tab active" id="tab-orders" onclick="switchTab('orders')">Orders</div>
+    <div class="tnav-tab" id="tab-positions" onclick="switchTab('positions')">Positions</div>
+  </div>
+  <div class="topnav-actions">
+    <!-- Search icon -->
+    <button class="icon-btn">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#444" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="22" y2="22"/></svg>
+    </button>
+    <!-- More dots -->
+    <button class="icon-btn">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="#444"><circle cx="12" cy="5" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="12" cy="19" r="1.5"/></svg>
+    </button>
+  </div>
+</div>
+
+<!-- INDEX STRIP -->
+<div class="istrip" id="istrip">
+  <div class="iitem sel" id="ii-NIFTY" onclick="openModal('NIFTY')">
+    <div class="iitem-top"><span class="iitem-name">NIFTY</span><span class="iitem-exp">Expiry Tue</span></div>
+    <div class="iitem-val" id="iv-NIFTY">23,907.15</div>
+    <div class="iitem-chg down" id="ic-NIFTY">-6.55 (-0.03%)</div>
+  </div>
+  <div class="iitem" id="ii-BANKNIFTY" onclick="openModal('BANKNIFTY')">
+    <div class="iitem-top"><span class="iitem-name">BANKNIFTY</span><span class="iitem-exp">Expiry Wed</span></div>
+    <div class="iitem-val" id="iv-BANKNIFTY">51,234.50</div>
+    <div class="iitem-chg up" id="ic-BANKNIFTY">+123.40 (+0.24%)</div>
+  </div>
+  <div class="iitem" id="ii-SENSEX" onclick="openModal('SENSEX')">
+    <div class="iitem-top"><span class="iitem-name">SENSEX</span><span class="iitem-exp">Expiry Thu</span></div>
+    <div class="iitem-val" id="iv-SENSEX">75,867.80</div>
+    <div class="iitem-chg down" id="ic-SENSEX">-141.90 (-0.19%)</div>
+  </div>
+  <div class="iitem" id="ii-MIDCAPNIFTY" onclick="openModal('MIDCAPNIFTY')">
+    <div class="iitem-top"><span class="iitem-name">MIDCAP NF</span><span class="iitem-exp">Expiry Mon</span></div>
+    <div class="iitem-val" id="iv-MIDCAPNIFTY">11,456.25</div>
+    <div class="iitem-chg up" id="ic-MIDCAPNIFTY">+45.30 (+0.40%)</div>
+  </div>
+  <div class="iitem" id="ii-FINNIFTY" onclick="openModal('FINNIFTY')">
+    <div class="iitem-top"><span class="iitem-name">FINNIFTY</span><span class="iitem-exp">Expiry Tue</span></div>
+    <div class="iitem-val" id="iv-FINNIFTY">22,134.60</div>
+    <div class="iitem-chg down" id="ic-FINNIFTY">-32.10 (-0.14%)</div>
+  </div>
+</div>
+
+<!-- MAIN SCROLL -->
+<div class="main" id="main">
+
+  <!-- ORDERS SECTION -->
+  <div id="sec-orders">
+    <!-- empty -->
+    <div class="empty-wrap" id="empty-orders">
+      <!-- Angel One empty box SVG -->
+      <svg width="130" height="115" viewBox="0 0 130 115" fill="none">
+        <rect x="22" y="28" width="86" height="72" rx="7" fill="#eef0fb" stroke="#d4d8f0" stroke-width="1.5"/>
+        <rect x="32" y="42" width="38" height="5" rx="2.5" fill="#d4d8f0"/>
+        <rect x="32" y="53" width="62" height="4" rx="2" fill="#e0e4f5"/>
+        <rect x="32" y="63" width="50" height="4" rx="2" fill="#e0e4f5"/>
+        <rect x="32" y="75" width="34" height="13" rx="5" fill="#dde3f5"/>
+        <rect x="72" y="75" width="22" height="13" rx="5" fill="#e8eeff"/>
+        <!-- checkmark circle -->
+        <circle cx="95" cy="26" r="12" fill="#e4f5ea" stroke="#b8ddc8" stroke-width="1.5"/>
+        <path d="M90 26l4 4 7-7" stroke="#2e7d32" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        <!-- dots -->
+        <circle cx="38" cy="18" r="4.5" fill="#f3e5f5" stroke="#d4b0e8" stroke-width="1.5"/>
+        <circle cx="108" cy="60" r="3.5" fill="#fff3e0" stroke="#ffcc80" stroke-width="1.5"/>
+        <!-- paper plane hint -->
+        <path d="M16 95 L45 80 L30 100 Z" fill="#e3eaff" stroke="#b8c8f0" stroke-width="1"/>
+      </svg>
+      <div class="empty-txt">Please place a new order</div>
+      <div class="empty-sub">Tap on any index above to get started</div>
+    </div>
+    <!-- orders list -->
+    <div class="orders-list-wrap" id="orders-list"></div>
+  </div>
+
+  <!-- POSITIONS SECTION -->
+  <div id="sec-positions" style="display:none">
+    <!-- search -->
+    <div class="search-wrap">
+      <div class="search-inner">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#aaa" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="22" y2="22"/></svg>
+        <input type="text" placeholder="Search for a company or a stock">
+        <div class="filter-btn">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#666" stroke-width="2" stroke-linecap="round"><line x1="4" y1="6" x2="20" y2="6"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="11" y1="18" x2="13" y2="18"/></svg>
+        </div>
+      </div>
+    </div>
+
+    <!-- open positions header -->
+    <div class="op-header" id="pos-header" style="display:none">
+      <div class="op-title">
+        Open Positions
+        <svg class="op-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="2.5" stroke-linecap="round"><polyline points="18 15 12 9 6 15"/></svg>
+      </div>
+      <div class="" style="color:#1a56c4;cursor:pointer" onclick="clearAllOrders()">SELECT &amp; EXIT</div>
+    </div>
+    <div id="positions-list">
+      <div class="empty-wrap" style="padding:50px 30px">
+        <div class="empty-txt">No Open Positions</div>
+        <div class="empty-sub">Place an order to see your positions</div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /main -->
+
+<!-- TOTAL PNL BAR -->
+<div class="total-bar hidden" id="total-bar" onclick="switchTab('positions')">
+  <div class="total-bar-left">
+    Total P&amp;L
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#666" stroke-width="2.5" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg>
+  </div>
+  <div class="total-bar-amt" id="total-amt">₹0.00</div>
+</div>
+
+<!-- BOTTOM NAV -->
+<div class="botnav">
+  <!-- HOME -->
+  <div class="bnav-btn" onclick="switchPage('home')">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#999" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5L12 3l9 6.5V21H15v-6H9v6H3V9.5z"/></svg>
+    <span class="bnav-label">HOME</span>
+  </div>
+  <!-- WATCHLIST -->
+  <div class="bnav-btn" onclick="switchPage('watchlist')">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#999" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+    <span class="bnav-label">WATCHLIST</span>
+  </div>
+  <!-- PORTFOLIO -->
+  <div class="bnav-btn" onclick="switchPage('portfolio')">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#999" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="15" rx="2"/><path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/></svg>
+    <span class="bnav-label">PORTFOLIO</span>
+  </div>
+  <!-- ORDERS (active) -->
+  <div class="bnav-btn active" id="bnav-orders">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#d0021b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="8" y1="8" x2="16" y2="8"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="8" y1="16" x2="13" y2="16"/></svg>
+    <span class="bnav-label" style="color:var(--blue)">ORDERS</span>
+  </div>
+  <!-- ACCOUNT -->
+  <div class="bnav-btn" onclick="switchPage('account')">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#999" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+    <span class="bnav-label">ACCOUNT</span>
+  </div>
+</div>
+
+<!-- ===== TRADE MODAL ===== -->
+<div class="overlay" id="overlay" onclick="overlayClick(event)">
+  <div class="sheet" id="sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-head">
+      <div class="sheet-title" id="sh-title">NIFTY Options</div>
+      <div class="sheet-sub" id="sh-sub">NSE F&amp;O • Lot Size: 75</div>
+      <button class="sheet-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="sheet-body">
+
+      <!-- Live index pill -->
+      <div class="idx-pill">
+        <div class="idx-pill-l">
+          <div class="n" id="sh-idx-name">NIFTY</div>
+          <div class="live"><span class="ldot"></span>Market Open</div>
+        </div>
+        <div class="idx-pill-r">
+          <div class="v" id="sh-idx-val">23,907.15</div>
+          <div class="c down" id="sh-idx-chg">-6.55 (-0.03%)</div>
+        </div>
+      </div>
+
+      <div class="modal-index-strip" id="modal-index-strip"></div>
+      <div class="idx-note">Swipe to view all indexes. Tap any index to switch and update its market price.</div>
+
+      <!-- CE / PE -->
+      <div class="fgroup">
+        <label class="flabel">Option Type</label>
+        <div class="opt-toggle">
+          <button class="opt-btn ce" id="btn-ce" onclick="setOpt('CE')">▲ CALL (CE)</button>
+          <button class="opt-btn" id="btn-pe" onclick="setOpt('PE')">▼ PUT (PE)</button>
+        </div>
+      </div>
+
+      <!-- Strike Price -->
+      <div class="fgroup">
+        <label class="flabel">Strike Price</label>
+        <input class="finput" type="number" id="f-strike" placeholder="e.g. 23900" oninput="calc()">
+      </div>
+
+      <!-- Avg & Current option price -->
+      <div class="frow">
+        <div class="fgroup">
+          <label class="flabel">Avg Price (₹)</label>
+          <input class="finput" type="number" id="f-avg" placeholder="e.g. 250" oninput="syncLtp()">
+        </div>
+        <div class="fgroup">
+          <label class="flabel">Current LTP (₹)</label>
+          <input class="finput" type="number" id="f-ltp" placeholder="e.g. 280" oninput="calc()">
+        </div>
+      </div>
+
+      <!-- Market price -->
+      <div class="fgroup">
+        <label class="flabel">Index / Market Price</label>
+        <input class="finput" type="number" id="f-mkt" placeholder="e.g. 23500" oninput="updateMarketPrice()">
+      </div>
+
+      <!-- Lots -->
+      <div class="fgroup">
+        <label class="flabel">Number of Lots</label>
+        <div class="lot-adj">
+          <button class="ladj-btn" onclick="adjLots(-1)">−</button>
+          <input class="ladj-inp" type="number" id="f-lots" value="1" min="1" oninput="calc()">
+          <button class="ladj-btn" onclick="adjLots(1)">+</button>
+        </div>
+        <div class="lot-info" id="lot-info">1 Lot = 75 shares • Total Qty: 75</div>
+      </div>
+
+      <!-- P&L Preview -->
+      <div class="pnl-box">
+        <div class="pnl-row">
+          <span class="pnl-lbl">Avg Price × Qty (Invested)</span>
+          <span class="pnl-val" id="p-invested">₹0.00</span>
+        </div>
+        <div class="pnl-row">
+          <span class="pnl-lbl">Current LTP × Qty (Value)</span>
+          <span class="pnl-val" id="p-curval">₹0.00</span>
+        </div>
+        <div class="pnl-div"></div>
+        <div class="pnl-row">
+          <span class="pnl-big-lbl">Unrealised P&amp;L</span>
+          <span class="pnl-big-val" id="p-pnl" style="color:#999">₹0.00</span>
+        </div>
+        <div class="pnl-row" style="margin-top:4px">
+          <span class="pnl-lbl">Return %</span>
+          <span class="pnl-val" id="p-pct" style="color:#999">0.00%</span>
+        </div>
+      </div>
+
+      <button class="cta" onclick="placeOrder()">PLACE ORDER</button>
+
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ============================================================
+// INDEX CONFIG
+// ============================================================
+const CFG = {
+  NIFTY:       {ls:75,  ex:'NSE', expiry:'Tue', name:'NIFTY 50',    round:100},
+  BANKNIFTY:   {ls:30,  ex:'NSE', expiry:'Wed', name:'BANK NIFTY',  round:100},
+  SENSEX:      {ls:20,  ex:'BSE', expiry:'Thu', name:'SENSEX',       round:500},
+  MIDCAPNIFTY: {ls:120, ex:'NSE', expiry:'Mon', name:'MIDCAP NIFTY', round:25},
+  FINNIFTY:    {ls:65,  ex:'NSE', expiry:'Tue', name:'FIN NIFTY',    round:50},
+};
+
+// ============================================================
+// LIVE DATA
+// ============================================================
+const LD = {
+  NIFTY:       {v:23907.15, base:23907.15, d:-6.55,   dp:-0.03},
+  BANKNIFTY:   {v:51234.50, base:51234.50, d:123.40,  dp:0.24},
+  SENSEX:      {v:75867.80, base:75867.80, d:-141.90, dp:-0.19},
+  MIDCAPNIFTY: {v:11456.25, base:11456.25, d:45.30,   dp:0.40},
+  FINNIFTY:    {v:22134.60, base:22134.60, d:-32.10,  dp:-0.14},
+};
+
+// Tick ranges per index
+const TICK={NIFTY:2.5, BANKNIFTY:6, SENSEX:12, MIDCAPNIFTY:4, FINNIFTY:3};
+
+function n2(x){return x.toLocaleString('en-IN',{minimumFractionDigits:2,maximumFractionDigits:2})}
+function fv(x){return x.toLocaleString('en-IN',{minimumFractionDigits:2,maximumFractionDigits:2})}
+
+// ============================================================
+// MARKET TICK
+// ============================================================
+function tick(){
+  for(const k in LD){
+    const t=TICK[k]||3;
+    const move=(Math.random()-.48)*t;
+    LD[k].v=parseFloat((LD[k].v+move).toFixed(2));
+    LD[k].d=parseFloat((LD[k].v-LD[k].base).toFixed(2));
+    LD[k].dp=parseFloat(((LD[k].d/LD[k].base)*100).toFixed(2));
+    updateStripItem(k);
+  }
+  if(modalOpen) updateModalPill();
+  updateLivePnl();
+}
+setInterval(tick,1100);
+
+function updateStripItem(k){
+  const d=LD[k];
+  const vEl=document.getElementById('iv-'+k);
+  const cEl=document.getElementById('ic-'+k);
+  if(!vEl)return;
+  vEl.textContent=fv(d.v);
+  const sg=d.d>=0?'+':'';
+  cEl.textContent=`${sg}${fv(d.d)} (${sg}${d.dp.toFixed(2)}%)`;
+  cEl.className='iitem-chg '+(d.d>=0?'up':'down');
+}
+
+// ============================================================
+// CLOCK
+// ============================================================
+function clk(){
+  const clockEl = document.getElementById('clock');
+  if (!clockEl) return;
+  const n = new Date();
+  clockEl.textContent = n.getHours().toString().padStart(2,'0') + ':' + n.getMinutes().toString().padStart(2,'0');
+}
+clk(); setInterval(clk,30000);
+
+// Load saved orders from localStorage on page load
+loadOrdersFromStorage();
+
+// ============================================================
+// STATE
+// ============================================================
+let curIdx='NIFTY', optType='CE', modalOpen=false;
+let orders=[];
+
+// Load orders from localStorage on page load
+function loadOrdersFromStorage(){
+  try{
+    const stored=localStorage.getItem('zerodhaOrders');
+    if(stored){
+      orders=JSON.parse(stored);
+      renderOrders();
+      renderPositions();
+      updateLivePnl();
+    }
+  }catch(e){console.error('Error loading orders:',e)}
+}
+
+// Save orders to localStorage
+function saveOrdersToStorage(){
+  try{
+    localStorage.setItem('zerodhaOrders',JSON.stringify(orders));
+  }catch(e){console.error('Error saving orders:',e)}
+}
+
+// ============================================================
+// TAB SWITCH
+// ============================================================
+function switchTab(t){
+  document.getElementById('tab-orders').classList.toggle('active',t==='orders');
+  document.getElementById('tab-positions').classList.toggle('active',t==='positions');
+  document.getElementById('sec-orders').style.display=t==='orders'?'':'none';
+  document.getElementById('sec-positions').style.display=t==='positions'?'':'none';
+}
+
+// ============================================================
+// OPEN MODAL
+// ============================================================
+function openModal(idx){
+  curIdx=idx;
+  const c=CFG[idx], d=LD[idx];
+
+  // update strip selection
+  document.querySelectorAll('.iitem').forEach(el=>el.classList.remove('sel'));
+  document.getElementById('ii-'+idx).classList.add('sel');
+
+  document.getElementById('sh-title').textContent=c.name+' Options';
+  document.getElementById('sh-sub').textContent=`${c.ex} F&O • Lot Size: ${c.ls}`;
+  document.getElementById('sh-idx-name').textContent=idx;
+
+  updateModalPill();
+  renderModalIndexStrip();
+
+  // Suggest nearest strike
+  const sugStrike=Math.round(d.v/c.round)*c.round;
+  document.getElementById('f-strike').value=sugStrike;
+  document.getElementById('f-mkt').value=Math.round(d.v);
+  document.getElementById('f-avg').value='';
+  document.getElementById('f-ltp').value='';
+  document.getElementById('f-lots').value=1;
+  setOpt('CE');
+  calc();
+
+  document.getElementById('overlay').classList.add('open');
+  modalOpen=true;
+}
+
+function renderModalIndexStrip(){
+  const wrap=document.getElementById('modal-index-strip');
+  wrap.innerHTML=Object.keys(CFG).map(k=>{
+    const d=LD[k];
+    const sign=d.d>=0?'+':'';
+    return `<div class="modal-index-card${k===curIdx?' sel':''}" onclick="openModal('${k}')">
+      <div class="mic-name">${k}</div>
+      <div class="mic-val">${fv(d.v)}</div>
+      <div class="mic-chg ${d.d>=0?'up':'down'}">${sign}${fv(d.d)}</div>
+    </div>`;
+  }).join('');
+}
+
+function updateMarketPrice(){
+  const mktInput=document.getElementById('f-mkt');
+  const value=parseFloat(mktInput.value);
+  if(Number.isFinite(value)){
+    LD[curIdx].v=value;
+    LD[curIdx].d=parseFloat((LD[curIdx].v-LD[curIdx].base).toFixed(2));
+    LD[curIdx].dp=parseFloat(((LD[curIdx].d/LD[curIdx].base)*100).toFixed(2));
+    updateStripItem(curIdx);
+    updateModalPill();
+    renderModalIndexStrip();
+    
+    // Auto-set LTP to be 2-3% higher than market price for guaranteed profit
+    const ltpField=document.getElementById('f-ltp');
+    const profitMargin=value*0.025; // 2.5% buffer
+    ltpField.value=Math.round((value+profitMargin)*100)/100;
+    
+    calc();
+    updateLivePnl();
+  }
+}
+
+function syncLtp(){
+  const avg=parseFloat(document.getElementById('f-avg').value)||0;
+  if(avg>0){
+    // Auto-set LTP to be 3% higher than avg price for guaranteed profit
+    const ltpField=document.getElementById('f-ltp');
+    const profitMargin=avg*0.03; // 3% buffer
+    ltpField.value=Math.round((avg+profitMargin)*100)/100;
+  }
+  calc();
+}
+
+function updateModalPill(){
+  const d=LD[curIdx];
+  document.getElementById('sh-idx-val').textContent=fv(d.v);
+  const sg=d.d>=0?'+':'';
+  const chgEl=document.getElementById('sh-idx-chg');
+  chgEl.textContent=`${sg}${fv(d.d)} (${sg}${d.dp.toFixed(2)}%)`;
+  chgEl.className='c '+(d.d>=0?'up':'down');
+}
+
+function closeModal(){
+  document.getElementById('overlay').classList.remove('open');
+  modalOpen=false;
+}
+function overlayClick(e){if(e.target===document.getElementById('overlay'))closeModal()}
+
+// ============================================================
+// OPTION TYPE
+// ============================================================
+function setOpt(t){
+  optType=t;
+  document.getElementById('btn-ce').className='opt-btn'+(t==='CE'?' ce':'');
+  document.getElementById('btn-pe').className='opt-btn'+(t==='PE'?' pe':'');
+}
+
+// ============================================================
+// LOT ADJUSTER
+// ============================================================
+function adjLots(d){
+  const el=document.getElementById('f-lots');
+  el.value=Math.max(1,(parseInt(el.value)||1)+d);
+  calc();
+}
+
+// ============================================================
+// CALCULATE P&L
+// ============================================================
+function calc(){
+  const c=CFG[curIdx];
+  const lots=Math.max(1,parseInt(document.getElementById('f-lots').value)||1);
+  const qty=lots*c.ls;
+  document.getElementById('lot-info').textContent=
+    `${lots} Lot${lots>1?'s':''} = ${c.ls} ea • Total Qty: ${qty}`;
+
+  const avg=parseFloat(document.getElementById('f-avg').value)||0;
+  const ltp=parseFloat(document.getElementById('f-ltp').value)||0;
+
+  const invested=avg*qty;
+  const curval=ltp*qty;
+  // For CE: profit when LTP > avg. For PE: profit when LTP > avg (you bought PE, if PE price rises = profit)
+  const pnl=curval-invested;
+  const pct=invested>0?((pnl/invested)*100):0;
+
+  document.getElementById('p-invested').textContent='₹'+fv(invested);
+  document.getElementById('p-curval').textContent='₹'+fv(curval);
+
+  const pEl=document.getElementById('p-pnl');
+  const pcEl=document.getElementById('p-pct');
+
+  if(avg>0&&ltp>0){
+    const sign=pnl>=0?'+':'';
+    pEl.textContent=sign+'₹'+fv(Math.abs(pnl));
+    pEl.style.color=pnl>=0?'var(--green)':'var(--red)';
+    pcEl.textContent=sign+pct.toFixed(2)+'%';
+    pcEl.style.color=pnl>=0?'var(--green)':'var(--red)';
+  } else {
+    pEl.textContent='₹0.00'; pEl.style.color='#999';
+    pcEl.textContent='0.00%'; pcEl.style.color='#999';
+  }
+}
+
+// ============================================================
+// PLACE ORDER
+// ============================================================
+function placeOrder(){
+  const strike=document.getElementById('f-strike').value;
+  const avg=parseFloat(document.getElementById('f-avg').value);
+  const ltp=parseFloat(document.getElementById('f-ltp').value)||avg;
+  const mkt=parseFloat(document.getElementById('f-mkt').value)||LD[curIdx].v;
+  const lots=Math.max(1,parseInt(document.getElementById('f-lots').value)||1);
+
+  if(!strike||!avg){showToast('⚠️  Enter Strike Price and Avg Price');return}
+
+  const c=CFG[curIdx];
+  const qty=lots*c.ls;
+  const invested=avg*qty;
+  const curval=ltp*qty;
+  const pnl=curval-invested;
+  const now=new Date();
+
+  const initialProfit=(ltp-avg)*qty;
+  const ord={
+    id:Date.now(),
+    idx:curIdx, cfg:c,
+    name:`${curIdx} ${strike}${optType}`,
+    strike, optType, avg, ltp,
+    lots, ls:c.ls, qty,
+    invested, curval, pnl,
+    mktAtEntry:mkt,
+    initialLtp:ltp,
+    initialProfit:initialProfit,
+    ex:c.ex,
+    time:now.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'}),
+  };
+  orders.push(ord);
+  saveOrdersToStorage();
+  updateLivePnl();
+  closeModal();
+  renderOrders();
+  renderPositions();
+  showToast('✅  Order placed successfully');
+  switchTab('positions');
+}
+
+// ============================================================
+// RENDER ORDERS
+// ============================================================
+function renderOrders(){
+  const empty=document.getElementById('empty-orders');
+  const list=document.getElementById('orders-list');
+  if(orders.length===0){empty.style.display='flex';list.innerHTML='';updateTotalBar();return}
+  empty.style.display='none';
+
+  list.innerHTML=orders.map(o=>{
+    const sign=o.pnl>=0?'+':'';
+    const cls=o.pnl>=0?'up':'down';
+    const pct=o.invested>0?((o.pnl/o.invested)*100).toFixed(2):'0.00';
+    const exBadge=o.ex==='BSE'?'b-bse':'b-nse';
+    return `<div style="background:#fff;border-radius:8px;margin-bottom:8px;box-shadow:0 1px 4px rgba(0,0,0,.08);overflow:hidden;border:1px solid #eee">
+      <div style="padding:12px 14px 10px;display:flex;justify-content:space-between;align-items:flex-start">
+        <div>
+          <div style="font-size:13px;font-weight:700;color:#111">${o.name}</div>
+          <div style="display:flex;gap:5px;margin-top:5px;align-items:center;flex-wrap:wrap">
+            <span class="badge b-buy">BUY</span>
+            <span class="badge b-cf">CF</span>
+            <span class="badge ${exBadge}">${o.ex} FO</span>
+          </div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-size:16px;font-weight:900" class="${cls}" id="opnl-${o.id}">${sign}₹${fv(Math.abs(o.pnl))}</div>
+          <div style="font-size:10px;color:#aaa;margin-top:2px">${o.time}</div>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:4px;padding:0 14px 6px">
+        <div><div style="font-size:9px;color:#aaa;font-weight:700;text-transform:uppercase;letter-spacing:.3px">Strike</div><div style="font-size:12px;font-weight:700;color:#111;margin-top:2px">${o.strike}${o.optType}</div></div>
+        <div><div style="font-size:9px;color:#aaa;font-weight:700;text-transform:uppercase;letter-spacing:.3px">Avg</div><div style="font-size:12px;font-weight:700;color:#111;margin-top:2px">₹${fv(o.avg)}</div></div>
+        <div><div style="font-size:9px;color:#aaa;font-weight:700;text-transform:uppercase;letter-spacing:.3px">LTP</div><div id="oltp-${o.id}" style="font-size:12px;font-weight:700;color:#111;margin-top:2px">₹${fv(o.ltp)}</div></div>
+        <div><div style="font-size:9px;color:#aaa;font-weight:700;text-transform:uppercase;letter-spacing:.3px">Lots</div><div style="font-size:12px;font-weight:700;color:#111;margin-top:2px">${o.lots} (${o.ls})</div></div>
+        <div><div style="font-size:9px;color:#aaa;font-weight:700;text-transform:uppercase;letter-spacing:.3px">Qty</div><div style="font-size:12px;font-weight:700;color:#111;margin-top:2px">${o.qty}</div></div>
+        <div><div style="font-size:9px;color:#aaa;font-weight:700;text-transform:uppercase;letter-spacing:.3px">Index LTP</div><div id="oidx-${o.id}" style="font-size:12px;font-weight:700;color:#111;margin-top:2px">${fv(LD[o.idx].v)}</div></div>
+      </div>
+      <div style="padding:8px 14px 10px;border-top:1px dashed #f0f2f5;display:flex;justify-content:space-between">
+        <span style="font-size:11px;color:#888">Invested: ₹${fv(o.invested)}</span>
+        <span style="font-size:11px;font-weight:700" class="${cls}">${sign}${pct}%</span>
+      </div>
+    </div>`;
+  }).join('');
+  updateTotalBar();
+}
+
+// ============================================================
+// RENDER POSITIONS  (Angel One style)
+// ============================================================
+function renderPositions(){
+  const list=document.getElementById('positions-list');
+  const hdr=document.getElementById('pos-header');
+  if(orders.length===0){
+    hdr.style.display='none';
+    list.innerHTML=`<div class="empty-wrap" style="padding:50px 30px"><div class="empty-txt">No Open Positions</div><div class="empty-sub">Place an order to see your positions</div></div>`;
+    updateTotalBar();return;
+  }
+  hdr.style.display='flex';
+  list.innerHTML=orders.map(o=>{
+    const sign=o.pnl>=0?'+':'';
+    const cls=o.pnl>=0?'up':'down';
+    const pct=o.invested>0?((o.pnl/o.invested)*100).toFixed(2):'0.00';
+    const exBadge=o.ex==='BSE'?'b-bse':'b-nse';
+    return `<div class="pos-card">
+      <div class="pos-card-top">
+        <div>
+          <div class="pos-name">${o.name}</div>
+          <div class="pos-badges">
+            <span class="badge b-buy">BUY</span>
+            <span class="badge b-cf">CF</span>
+            <span class="badge ${exBadge}">${o.ex} FO</span>
+            <span class="pos-ltp">LTP <span id="pltp-${o.id}">${fv(o.ltp)}</span> (<span id="pltpchg-${o.id}" class="${cls}">${sign}${pct}%</span>)</span>
+          </div>
+        </div>
+        <div class="pos-pnl ${cls}" id="ppnl-${o.id}">${sign}₹${fv(Math.abs(o.pnl))}</div>
+      </div>
+      <div class="pos-card-bot">
+        <div class="pos-lots">${o.lots} Lots (1 Lot = ${o.ls})</div>
+        <div class="pos-avg">Avg. ${fv(o.avg)}</div>
+      </div>
+    </div>`;
+  }).join('');
+  updateTotalBar();
+}
+
+// ============================================================
+// TOTAL BAR
+// ============================================================
+function updateTotalBar(){
+  const bar=document.getElementById('total-bar');
+  if(orders.length===0){bar.classList.add('hidden');return}
+  bar.classList.remove('hidden');
+  const tot=orders.reduce((s,o)=>s+o.pnl,0);
+  const amtEl=document.getElementById('total-amt');
+  const sign=tot>=0?'+₹':'-₹';
+  amtEl.textContent=sign+fv(Math.abs(tot));
+  amtEl.style.color=tot>=0?'var(--green)':'var(--red)';
+}
+
+// ============================================================
+// LIVE P&L UPDATE
+// ============================================================
+function updateLivePnl(){
+  orders.forEach(o=>{
+    const d=LD[o.idx];
+    // delta-based option price movement from initial entry
+    const idxMove=d.v-o.mktAtEntry;
+    const delta=o.optType==='CE'?0.45:-0.45;
+    const noise=(Math.random()-.5)*0.4;
+    const ltpMovement=parseFloat(((idxMove*delta)+noise).toFixed(2));
+    const newLtp=Math.max(0.05,o.initialLtp+ltpMovement);
+    o.ltp=newLtp;
+    o.curval=newLtp*o.qty;
+    o.pnl=o.initialProfit+(newLtp-o.initialLtp)*o.qty;
+
+    const sign=o.pnl>=0?'+':'';
+    const cls=o.pnl>=0?'up':'down';
+    const pct=o.invested>0?((o.pnl/o.invested)*100).toFixed(2):'0.00';
+
+    // update orders tab
+    const opnl=document.getElementById('opnl-'+o.id);
+    if(opnl){opnl.textContent=sign+'₹'+fv(Math.abs(o.pnl));opnl.className=cls}
+    const oltp=document.getElementById('oltp-'+o.id);
+    if(oltp)oltp.textContent='₹'+fv(newLtp);
+    const oidx=document.getElementById('oidx-'+o.id);
+    if(oidx)oidx.textContent=fv(d.v);
+
+    // update positions tab
+    const ppnl=document.getElementById('ppnl-'+o.id);
+    if(ppnl){ppnl.textContent=sign+'₹'+fv(Math.abs(o.pnl));ppnl.className='pos-pnl '+cls}
+    const pltp=document.getElementById('pltp-'+o.id);
+    if(pltp)pltp.textContent=fv(newLtp);
+    const pchg=document.getElementById('pltpchg-'+o.id);
+    if(pchg){pchg.textContent=sign+pct+'%';pchg.className=cls}
+  });
+  updateTotalBar();
+}
+
+// ============================================================
+// TOAST
+// ============================================================
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2600);
+}
+
+function switchPage(p){showToast('Opening '+p.charAt(0).toUpperCase()+p.slice(1)+'...')}
+
+// ============================================================
+// CLEAR ALL ORDERS (SELECT & EXIT)
+// ============================================================
+function clearAllOrders(){
+  if(orders.length===0){showToast('No trades to exit');return}
+  if(confirm('Exit all '+orders.length+' trade(s)? This cannot be undone.')){
+    orders=[];
+    saveOrdersToStorage();
+    renderOrders();
+    renderPositions();
+    updateTotalBar();
+    showToast('✅  All trades exited successfully');
+  }
+}
+</script>
+</body>
+</html>
